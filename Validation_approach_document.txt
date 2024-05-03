@@ -1,0 +1,79 @@
+						Data Validation Pipeline Documentation
+Introduction
+This documentation outlines the process of daily data validation for table_name and row_count 
+in an S3 landing zone and a Redshift schema. The proposed approach involves two methods: 
+using AWS Glue Crawler with Data Catalog, and using AWS Glue Script integrated with S3 and Redshift. 
+The validation results will trigger notifications.
+
+Table of Contents
+1.Overview
+	Purpose
+	Components
+
+2.Approaches
+	Approach 1: AWS Glue Crawler with Data Catalog
+	Approach 2: AWS Glue Script with S3 and Redshift Integration
+
+3.Pipeline Configuration
+	AWS S3 Setup
+	AWS Glue Crawler/Script Configuration
+	Redshift Configuration
+
+4.Daily Validation Process
+	Process Flow
+	Validation Steps
+
+5.Notification System
+	Setup
+	Notifications
+
+1. Overview
+Purpose
+The purpose of this data validation pipeline is to ensure the integrity of data loaded into the 
+Redshift schema from the S3 landing zone. Daily validations will be performed on the table_name 
+and row_count, and notifications will be sent based on the validation results.
+
+Components
+	AWS S3: Storage for incoming data files.
+	AWS Glue Crawler/Script: Extracts metadata and performs data validations.
+	AWS Data Catalog: Stores metadata for the crawled data.
+	Amazon Redshift: Data warehouse where validated data is loaded.
+	Notification System: Sends notifications based on validation results.
+2. Approaches
+Approach 1: AWS Glue Crawler with Data Catalog
+ Utilizes AWS Glue Crawler to discover and catalog metadata.
+ Leverages the AWS Data Catalog for storing metadata.
+ Daily validations are performed using the cataloged metadata.
+
+Approach 2: AWS Glue Script with S3 and Redshift Integration
+ Employs a custom AWS Glue Script to read data from S3 and Redshift.
+ Validates the data directly without relying on a Data Catalog.
+ Provides flexibility in data processing and validation logic.
+
+3. Pipeline Configuration
+AWS S3 Setup
+	Identify and configure S3 buckets of incoming daily load data.
+	Ensure proper permissions for Glue and Redshift to access the buckets.
+
+AWS Glue Crawler/Script Configuration
+ Define Glue Crawler/Script parameters (e.g., source and destination endpoints, validation logic).
+ Set up Glue connections for S3 and Redshift.
+
+Redshift Configuration
+ Read the Redshift schema for data loading.
+ create glue connectin for redshift integration
+ Grant necessary permissions for Glue and S3 access.
+ 
+4. Daily Validation Process
+Process Flow
+ 1.Data is loaded into the S3 landing zone.
+ 2.AWS Glue Crawler/Script is triggered daily.
+ 3.Crawler catalogs metadata in the AWS Data Catalog (Approach 1).
+ 4.Script reads data from S3 and Redshift (Approach 2).
+ 5.Data validations for table_name and row_count are performed.
+ 6.Notifications are sent based on validation results.
+
+5.Validation Steps
+ Check for the existence of the specified table_name.
+ Compare row counts between S3 and Redshift for each table.
+ Log validation results.

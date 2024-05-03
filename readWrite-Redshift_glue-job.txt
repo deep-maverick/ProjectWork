@@ -1,0 +1,45 @@
+from pyspark.context import SparkContext
+from awsglue.context import GlueContext
+from pyspark.sql import SQLContext
+
+sc = SparkContext()
+glueContext = GlueContext(sc)
+spark = glueContext.spark_session
+
+# EXTRACT: Reading parquet data
+
+# Tables bases read
+connection_options = {
+    "url": "jdbc:redshift://<host>:5439/<database>",
+    "dbtable": "<table_schema>.<table_name>",
+    "user": "<username>",
+    "password": "<password>",
+    "redshiftTmpDir": args["TempDir"]
+}
+
+# Query based read
+# query = "select * from <table_schema>.<table_name>"
+
+# connection_options = {
+#     "url": "jdbc:redshift://<host>:5439/<database>",
+#     "query": query,
+#     "user": "<username>",
+#     "password": "<password>",
+#     "redshiftTmpDir": args["TempDir"]
+# }
+
+df = glueContext.create_dynamic_frame_from_options("redshift", connection_options).toDF()
+
+
+# TRANSFORM: some transformation
+df = df.distinct()
+
+# LOAD: write data to Redshift
+df.write.format("jdbc").\
+    option("url", "jdbc:redshift://<host>:5439/<database>").\
+    option("dbtable", "<table_schema>.<table_name>").\
+    option("user", "<username>").\
+    option("password", "<password>").\
+    mode('overwrite').save()
+    
+print("Data Loaded to Redshift")

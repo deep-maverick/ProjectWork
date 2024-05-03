@@ -1,0 +1,89 @@
+Code Repo: AWS CodeCommit.
+----------------------------
+redshift cluster credentials:
+-------------------------------
+cluster-identifier=redshift-cluster-1
+user=ruser
+pwd=Rpassword.1
+
+---------------------------------
+
+Migration approach- Discovery Phase
+------------------------------------
+Objective:
+
+
+1.DDL schema discovery and tables data analysis
+	1.1)data-warehouse-dev-redshift
+	1.2)Database_Name:data-warehouse-main-dev-redshift-db
+	1.3)Schema_Name:Base
+	1.4)Total No Of Tables:85
+	1.5)No of Records to be Transfer:11,77,05,252 
+
+2.check for s3 access for Object creation:
+
+3.Check IAM policies and roles to aws services
+
+4.Redshift DDL schema extraction and Transport:
+
+5.Table migration approach
+  5.1)Python Script
+  5.2)AWS Glue
+  5.3)Redshift unload into s3 and snowflake copy command
+
+6.migration pipeline its components:
+	6.1)source:Redshift Cluster
+	6.2)Temporary Storage:AWS S3
+	6.3)Target:Snowflake
+	
+7.table batch loading into s3 bucket 
+    7.1)Select file format and compression technique:
+		7.1.1)Parquet + Snappy
+		7.1.2)CSV + GZ
+		7.1.3)Jason + GZ
+	7.2)data partition approach
+
+8. Snowflake D/W access:
+
+9. DDL creation in snowflake
+
+
+9.creation of service account which has access to all the schemas
+	--owner: jason
+
+-----------------------------------------------------------------------------
+unload data from redshift into s3 bucket into multiple part files
+//unload command syntax:
+
+unload ('select * from venue')   
+to 's3://mybucket/tickit/unload/venue_' 
+iam_role 'arn:aws:iam::0123456789012:role/MyRedshiftRole';
+
+case:1
+UNLOAD writes data in parallel to multiple files, according to the number of slices in the cluster. 
+To write data to a single file, specify PARALLEL OFF. 
+
+unload ('select * from venue')
+to 's3://mybucket/tickit/unload/venue_' 
+iam_role 'arn:aws:iam::0123456789012:role/MyRedshiftRole'
+delimiter ','
+parallel off;
+
+case-2:
+Assuming the total data size for VENUE is 5 GB, the following example writes the contents 
+of VENUE to 50 files, each 100 MB in size.
+
+unload ('select * from venue')
+to 's3://mybucket/tickit/unload/venue_' 
+iam_role 'arn:aws:iam::0123456789012:role/MyRedshiftRole'
+parallel off
+maxfilesize 100 mb;
+
+case-3:
+To overwrite the existing files, including the manifest file, specify the ALLOWOVERWRITE option.
+
+unload ('select * from venue') 
+to 's3://mybucket/venue_pipe_' 
+iam_role 'arn:aws:iam::0123456789012:role/MyRedshiftRole'
+manifest 
+allowoverwrite;
