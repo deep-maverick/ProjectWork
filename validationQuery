@@ -1,0 +1,50 @@
+SELECT 
+	  n.nspname AS schema_name, 
+	  c.relname AS table_name, 
+	  c.reltuples AS row_count
+   --   COUNT(a.attname) AS column_count
+    FROM 
+	  pg_namespace n
+	JOIN 
+	  pg_class c ON n.oid = c.relnamespace
+	JOIN 
+	  pg_attribute a ON c.oid = a.attrelid
+	WHERE 
+	  c.relkind = 'r' AND 
+	  n.nspname NOT LIKE 'pg_%' AND 
+	  n.nspname Like 'stg_sae_%' AND
+	  n.nspname NOT Like '%_hist' AND
+	  n.nspname != 'information_schema' AND
+	  a.attnum > 0
+	GROUP BY 
+	  schema_name, 
+	  table_name, 
+	  c.reltuples
+	ORDER BY 
+	  schema_name, 
+	  table_name;
+
+#Single Schema Query
+SELECT 
+	 n.nspname AS schema_name, 
+	  c.relname AS table_name, 
+	  c.reltuples AS row_count
+   --   COUNT(a.attname) AS column_count
+    FROM 
+	  pg_namespace n
+	JOIN 
+	  pg_class c ON n.oid = c.relnamespace
+	JOIN 
+	  pg_attribute a ON c.oid = a.attrelid
+	WHERE 
+	  n.nspname LIKE '%stg_sae_sp_che%' AND 
+      n.nspname NOT Like '%_hist' AND 
+	  n.nspname != 'information_schema' AND
+	  a.attnum > 0
+	GROUP BY 
+	  schema_name, 
+	  table_name, 
+	  c.reltuples
+	ORDER BY 
+	  schema_name, 
+	  table_name;
